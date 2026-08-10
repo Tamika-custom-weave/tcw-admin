@@ -10,6 +10,7 @@ import { Plus, Trash2, Tag, Layers, ChevronDown, ChevronUp, Eye } from "lucide-r
 interface ProductFormProps {
   initialData?: Product;
   isEdit?: boolean;
+  onSuccess?: () => void;
 }
 
 // Determines which extra fields to show based on the category
@@ -34,8 +35,8 @@ function VariantPreviewCard({ variant, catType }: { variant: ProductVariant; cat
     attrs.push({ label: "Lace Type", value: variant.laceType });
 
   return (
-    <div className="flex items-center gap-3 flex-wrap bg-indigo-50 border border-indigo-100 rounded-lg px-3 py-2 text-sm">
-      <span className="font-semibold text-indigo-700">${variant.price}</span>
+    <div className="flex items-center gap-3 flex-wrap bg-gold-50 border border-gold-100 rounded-lg px-3 py-2 text-sm">
+      <span className="font-semibold text-gold-700">${variant.price}</span>
       <span className="text-gray-400">·</span>
       <span className="text-gray-600">{variant.stock} in stock</span>
       {attrs.map((a) => (
@@ -74,7 +75,7 @@ function VariantRow({
   const showLaceFields = catType === "closure" || catType === "frontal";
 
   const inputCls =
-    "w-full px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all bg-white";
+    "w-full px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all bg-white";
   const labelCls = "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1";
 
   return (
@@ -96,7 +97,7 @@ function VariantRow({
       </div>
 
       {/* Fields */}
-      <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Always-visible fields */}
         <div>
           <label className={labelCls}>Price (₦)</label>
@@ -123,7 +124,7 @@ function VariantRow({
             className={inputCls}
           />
         </div>
-        <div className="col-span-2 md:col-span-1">
+        <div className="sm:col-span-2 lg:col-span-1">
           <label className={labelCls}>SKU</label>
           <input
             type="text"
@@ -195,7 +196,7 @@ function VariantRow({
 }
 
 // ---- Main Form ----
-export function ProductForm({ initialData, isEdit }: ProductFormProps) {
+export function ProductForm({ initialData, isEdit, onSuccess }: ProductFormProps) {
   const router = useRouter();
 
   const [categories, setCategories] = useState<Category[]>([]);
@@ -304,9 +305,13 @@ export function ProductForm({ initialData, isEdit }: ProductFormProps) {
           body: JSON.stringify(payload),
         });
       }
-      router.push("/products");
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push("/products");
+      }
       router.refresh();
-    } catch (err: any) {
+    } catch (error) { const err = error as Error;
       setError(err.message);
       setLoading(false);
     }
@@ -322,9 +327,9 @@ export function ProductForm({ initialData, isEdit }: ProductFormProps) {
       )}
 
       {/* ── Section 1: Basic Details ── */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="flex items-center gap-2 px-6 py-4 bg-gray-50 border-b border-gray-200">
-          <Tag className="w-4 h-4 text-indigo-500" />
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+        <div className="flex items-center gap-2 px-6 py-4 bg-gray-50/50 border-b border-gray-100">
+          <Tag className="w-4 h-4 text-gold-500" />
           <h2 className="font-semibold text-gray-800">Basic Details</h2>
         </div>
 
@@ -339,7 +344,7 @@ export function ProductForm({ initialData, isEdit }: ProductFormProps) {
               onChange={(e) => setName(e.target.value)}
               required
               placeholder="e.g. Brazilian Body Wave Bundles"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent outline-none transition-all"
             />
           </div>
 
@@ -351,7 +356,7 @@ export function ProductForm({ initialData, isEdit }: ProductFormProps) {
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
               required
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent outline-none transition-all"
             >
               <option value="">Select a category…</option>
               {categories.map((c) => (
@@ -361,7 +366,7 @@ export function ProductForm({ initialData, isEdit }: ProductFormProps) {
               ))}
             </select>
             {catType !== "generic" && (
-              <p className="mt-1.5 text-xs text-indigo-600 font-medium">
+              <p className="mt-1.5 text-xs text-gold-600 font-medium">
                 {catType === "bundle" && "ℹ️ Variant builder will show: Length, Color"}
                 {catType === "closure" && "ℹ️ Variant builder will show: Length, Lace Size, Lace Type, Color"}
                 {catType === "frontal" && "ℹ️ Variant builder will show: Length, Lace Size, Lace Type, Color"}
@@ -379,7 +384,7 @@ export function ProductForm({ initialData, isEdit }: ProductFormProps) {
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               placeholder="Short product description visible to customers…"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all resize-none"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent outline-none transition-all resize-none"
             />
           </div>
 
@@ -392,7 +397,7 @@ export function ProductForm({ initialData, isEdit }: ProductFormProps) {
                   checked={isActive}
                   onChange={(e) => setIsActive(e.target.checked)}
                 />
-                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-indigo-600 transition-colors" />
+                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-gold-600 transition-colors" />
                 <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-5" />
               </div>
               <span className="text-sm font-medium text-gray-700">
@@ -404,9 +409,9 @@ export function ProductForm({ initialData, isEdit }: ProductFormProps) {
       </div>
 
       {/* ── Section 2: Images ── */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="flex items-center gap-2 px-6 py-4 bg-gray-50 border-b border-gray-200">
-          <Eye className="w-4 h-4 text-indigo-500" />
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+        <div className="flex items-center gap-2 px-6 py-4 bg-gray-50/50 border-b border-gray-100">
+          <Eye className="w-4 h-4 text-gold-500" />
           <h2 className="font-semibold text-gray-800">Product Images</h2>
         </div>
         <div className="p-6 flex flex-col gap-6">
@@ -455,19 +460,19 @@ export function ProductForm({ initialData, isEdit }: ProductFormProps) {
       </div>
 
       {/* ── Section 3: Variants ── */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 bg-gray-50 border-b border-gray-200">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 bg-gray-50/50 border-b border-gray-100">
           <div className="flex items-center gap-2">
-            <Layers className="w-4 h-4 text-indigo-500" />
+            <Layers className="w-4 h-4 text-gold-500" />
             <h2 className="font-semibold text-gray-800">Product Variants</h2>
-            <span className="ml-2 text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-medium">
+            <span className="ml-2 text-xs bg-gold-100 text-gold-700 px-2 py-0.5 rounded-full font-medium">
               {variants.length} variant{variants.length !== 1 ? "s" : ""}
             </span>
           </div>
           <button
             type="button"
             onClick={handleAddVariant}
-            className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 bg-gray-900 hover:bg-black text-white text-sm font-medium px-4 py-2 rounded-lg transition-all shadow-sm"
           >
             <Plus className="w-4 h-4" />
             Add Variant
@@ -503,7 +508,7 @@ export function ProductForm({ initialData, isEdit }: ProductFormProps) {
             <button
               type="button"
               onClick={handleAddVariant}
-              className="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all text-sm font-medium flex items-center justify-center gap-2"
+              className="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 hover:border-gold-400 hover:text-gold-600 hover:bg-gold-50 transition-all text-sm font-medium flex items-center justify-center gap-2"
             >
               <Plus className="w-4 h-4" />
               Add another variant
@@ -516,7 +521,10 @@ export function ProductForm({ initialData, isEdit }: ProductFormProps) {
       <div className="flex justify-end gap-4 pb-8">
         <button
           type="button"
-          onClick={() => router.push("/products")}
+          onClick={() => {
+            if (onSuccess) onSuccess();
+            else router.push("/products");
+          }}
           className="px-6 py-2.5 rounded-xl font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors"
         >
           Cancel
@@ -524,7 +532,7 @@ export function ProductForm({ initialData, isEdit }: ProductFormProps) {
         <button
           type="submit"
           disabled={loading}
-          className="px-8 py-2.5 rounded-xl font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 transition-colors shadow-sm"
+          className="px-8 py-2.5 rounded-xl font-semibold text-white bg-gray-900 hover:bg-black disabled:opacity-50 transition-all shadow-sm"
         >
           {loading
             ? "Saving…"

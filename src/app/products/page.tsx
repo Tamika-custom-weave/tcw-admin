@@ -2,17 +2,20 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Plus, Edit2, Trash2, Search, Filter } from "lucide-react";
 import { fetchApi } from "@/lib/api";
 import { Product, Category } from "@/types";
 
 export default function ProductsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Filtering and Search State
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(searchParams.get("search") || "");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   
@@ -34,12 +37,21 @@ export default function ProductsPage() {
     });
   }, []);
 
+  // Sync search state if URL changes externally
+  useEffect(() => {
+    const q = searchParams.get("search");
+    if (q !== null) {
+      setSearch(q);
+      setCurrentPage(1);
+    }
+  }, [searchParams]);
+
   const handleDelete = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
     try {
       await fetchApi(`/products/${id}`, { method: "DELETE" });
       setProducts(products.filter((p) => p._id !== id));
-    } catch (err: any) {
+    } catch (error) { const err = error as Error;
       alert("Failed to delete product: " + err.message);
     }
   };
@@ -64,37 +76,44 @@ export default function ProductsPage() {
   );
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Products</h1>
-        <Link
-          href="/products/new"
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+    <div className="p-4 sm:p-8 max-w-7xl mx-auto">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900">Products</h1>
+          <p className="text-gray-500 mt-1 text-sm">Manage your hair extensions, wigs, and accessories.</p>
+        </div>
+        <button
+          onClick={() => {
+            const current = new URLSearchParams(Array.from(searchParams.entries()));
+            current.set("modal", "new-product");
+            router.push(`?${current.toString()}`);
+          }}
+          className="bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-lg flex items-center gap-2 transition-all shadow-sm font-medium text-sm border border-transparent hover:border-gray-800"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4 text-gold-400" />
           Add Product
-        </Link>
+        </button>
       </div>
 
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-wrap gap-4 items-center justify-between">
-        <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg flex-1 min-w-[200px] border border-gray-200">
-          <Search className="w-5 h-5 text-gray-400" />
+      <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-gray-100 mb-8 flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
+        <div className="flex items-center gap-2 bg-gray-50/50 px-3 py-2.5 rounded-xl w-full md:flex-1 md:min-w-[200px] border border-gray-200 focus-within:ring-2 focus-within:ring-gold-500 focus-within:border-gold-500 transition-all">
+          <Search className="w-4 h-4 text-gray-400" />
           <input
             type="text"
             placeholder="Search products by name or SKU..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
-            className="bg-transparent border-none outline-none w-full text-sm text-gray-700"
+            className="bg-transparent border-none outline-none w-full text-sm text-gray-700 placeholder-gray-400"
           />
         </div>
         
-        <div className="flex gap-4">
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-400" />
+        <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Filter className="w-4 h-4 text-gray-400 hidden sm:block" />
             <select
               value={categoryFilter}
               onChange={(e) => { setCategoryFilter(e.target.value); setCurrentPage(1); }}
-              className="text-sm border-gray-200 rounded-lg outline-none focus:ring-indigo-500 py-2 pl-2 pr-8 border bg-gray-50"
+              className="w-full sm:w-auto text-sm border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gold-500 py-2.5 pl-3 pr-8 border bg-white shadow-sm hover:border-gray-300 transition-all cursor-pointer"
             >
               <option value="">All Categories</option>
               {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
@@ -104,7 +123,7 @@ export default function ProductsPage() {
           <select
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
-            className="text-sm border-gray-200 rounded-lg outline-none focus:ring-indigo-500 py-2 pl-2 pr-8 border bg-gray-50"
+            className="w-full sm:w-auto text-sm border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gold-500 py-2.5 pl-3 pr-8 border bg-white shadow-sm hover:border-gray-300 transition-all cursor-pointer"
           >
             <option value="">All Statuses</option>
             <option value="active">Active</option>
@@ -116,21 +135,22 @@ export default function ProductsPage() {
       {loading ? (
         <div className="text-gray-500">Loading products...</div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-50 text-gray-500 border-b border-gray-100 text-sm">
-                <th className="py-3 px-6 font-medium">Product</th>
-                <th className="py-3 px-6 font-medium">Category</th>
-                <th className="py-3 px-6 font-medium">Price Range</th>
-                <th className="py-3 px-6 font-medium">Status</th>
-                <th className="py-3 px-6 font-medium text-right">Actions</th>
+        <div className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-gray-100 overflow-hidden">
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-left border-collapse min-w-[800px]">
+              <thead>
+              <tr className="bg-gray-50/50 text-gray-500 border-b border-gray-100 text-xs uppercase tracking-wider font-semibold">
+                <th className="py-4 px-6">Product</th>
+                <th className="py-4 px-6">Category</th>
+                <th className="py-4 px-6">Price Range</th>
+                <th className="py-4 px-6">Status</th>
+                <th className="py-4 px-6 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {paginatedProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-gray-500">
+                  <td colSpan={5} className="py-12 text-center text-gray-400 text-sm">
                     No products found matching criteria.
                   </td>
                 </tr>
@@ -145,38 +165,45 @@ export default function ProductsPage() {
                   const thumbnailObj = product.images?.[0];
                   
                   return (
-                    <tr key={product._id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                    <tr key={product._id} className="border-b border-gray-50 hover:bg-gold-50/30 transition-colors group">
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-4">
                           {thumbnailObj ? (
-                            <img src={thumbnailObj.url} alt={product.name} className="w-12 h-12 rounded object-cover border border-gray-200" />
+                            <img src={thumbnailObj.url} alt={product.name} className="w-12 h-12 rounded-lg object-cover border border-gray-200 shadow-sm" />
                           ) : (
-                            <div className="w-12 h-12 rounded bg-gray-100 border border-gray-200 flex items-center justify-center text-xs text-gray-400">No Img</div>
+                            <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center text-xs text-gray-400">No Img</div>
                           )}
                           <div>
-                            <div className="font-medium text-gray-900">{product.name}</div>
-                            <div className="text-xs text-gray-500">{product.variants.length} variant(s)</div>
+                            <div className="font-semibold text-gray-900">{product.name}</div>
+                            <div className="text-xs text-gray-500 mt-0.5">{product.variants.length} variant(s)</div>
                           </div>
                         </div>
                       </td>
-                      <td className="py-4 px-6 text-gray-600">{category?.name || 'Unknown'}</td>
-                      <td className="py-4 px-6 text-gray-900 font-medium">{priceStr}</td>
+                      <td className="py-4 px-6 text-gray-600 text-sm">{category?.name || 'Unknown'}</td>
+                      <td className="py-4 px-6 text-gray-900 font-medium text-sm">{priceStr}</td>
                       <td className="py-4 px-6">
-                        <span className={`px-2 py-1 text-xs rounded-full font-medium ${product.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                        <span className={`px-2.5 py-1 text-xs rounded-full font-medium border ${product.isActive ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-600 border-gray-200'}`}>
                           {product.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </td>
                       <td className="py-4 px-6 text-right">
-                        <div className="flex justify-end gap-2">
-                          <Link
-                            href={`/products/${product._id}/edit`}
-                            className="text-gray-400 hover:text-indigo-600 transition-colors p-2 rounded-md hover:bg-indigo-50"
+                        <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => {
+                              const current = new URLSearchParams(Array.from(searchParams.entries()));
+                              current.set("modal", "edit-product");
+                              current.set("id", product._id);
+                              router.push(`?${current.toString()}`);
+                            }}
+                            className="text-gray-400 hover:text-gold-600 transition-colors p-2 rounded-md hover:bg-gold-50"
+                            title="Edit Product"
                           >
                             <Edit2 className="w-4 h-4" />
-                          </Link>
+                          </button>
                           <button
                             onClick={() => handleDelete(product._id)}
-                            className="text-gray-400 hover:text-red-600 transition-colors p-2 rounded-md hover:bg-red-50"
+                            className="text-gray-400 hover:text-red-500 transition-colors p-2 rounded-md hover:bg-red-50"
+                            title="Delete Product"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -187,11 +214,12 @@ export default function ProductsPage() {
                 })
               )}
             </tbody>
-          </table>
+            </table>
+          </div>
           
           {totalPages > 1 && (
-            <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
-              <span className="text-sm text-gray-500">
+            <div className="px-4 sm:px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <span className="text-sm text-gray-500 text-center sm:text-left">
                 Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredProducts.length)} of {filteredProducts.length} entries
               </span>
               <div className="flex gap-1">

@@ -20,7 +20,7 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
       try {
         const data = await fetchApi<Category>(`/categories/${id}`);
         setCategory(data);
-      } catch (err: any) {
+      } catch (error) { const err = error as Error;
         setError(err.message);
       } finally {
         setLoading(false);

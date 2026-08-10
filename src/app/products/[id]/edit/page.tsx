@@ -20,7 +20,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       try {
         const data = await fetchApi<Product>(`/products/${id}`);
         setProduct(data);
-      } catch (err: any) {
+      } catch (error) { const err = error as Error;
         setError(err.message);
       } finally {
         setLoading(false);

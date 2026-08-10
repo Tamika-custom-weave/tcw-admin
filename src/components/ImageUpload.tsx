@@ -36,7 +36,7 @@ export function ImageUpload({ value, onChange, label = "Upload Image", className
         body: formData,
       });
       onChange(data);
-    } catch (err: any) {
+    } catch (error) { const err = error as Error;
       setError(err.message);
     } finally {
       setIsUploading(false);
@@ -54,7 +54,7 @@ export function ImageUpload({ value, onChange, label = "Upload Image", className
       await fetchApi(`/uploads/${value.publicId}`, {
         method: "DELETE",
       });
-    } catch (err: any) {
+    } catch (error) { const err = error as Error;
       console.error("Failed to delete image from backend", err);
       // We still clear it from the form even if it fails on backend, otherwise user is stuck.
     } finally {
