@@ -162,7 +162,7 @@ export default function ProductsPage() {
                   const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
                   const maxPrice = prices.length > 0 ? Math.max(...prices) : 0;
                   const priceStr = minPrice === maxPrice ? `$${minPrice}` : `$${minPrice} - $${maxPrice}`;
-                  const thumbnailObj = product.images?.[0];
+                  const thumbnailObj = product.thumbnail || product.images?.[0];
                   
                   return (
                     <tr key={product._id} className="border-b border-gray-50 hover:bg-gold-50/30 transition-colors group">

@@ -87,7 +87,7 @@ export default function Home() {
         price: `$${minPrice.toFixed(2)}`,
         stock: totalStock > 5 ? `In Stock: ${totalStock}` : (totalStock > 0 ? `Low Stock: ${totalStock}` : "Out of Stock"),
         lowStock: totalStock <= 5,
-        image: product.images?.[0]?.url || null,
+        image: product.thumbnail?.url || product.images?.[0]?.url || null,
       };
     });
 

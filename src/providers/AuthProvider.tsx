@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch { /* best-effort */ }
     setIsAuthenticated(false);
     router.push("/login");
-  }, [router]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [router]);
 
   // ─── Timer management ────────────────────────────────────────────────────────
 
@@ -140,7 +140,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Initial session check on mount
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     checkAuth();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

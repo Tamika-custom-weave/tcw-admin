@@ -18,6 +18,18 @@ export default function CategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  async function loadCategories() {
+    try {
+      setLoading(true);
+      const data = await fetchApi<Category[]>("/categories");
+      setCategories(data);
+    } catch (error) { const err = error as Error;
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadCategories();
   }, []);
@@ -41,17 +53,7 @@ export default function CategoriesPage() {
     router.push(`?${current.toString()}`);
   };
 
-  async function loadCategories() {
-    try {
-      setLoading(true);
-      const data = await fetchApi<Category[]>("/categories");
-      setCategories(data);
-    } catch (error) { const err = error as Error;
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+
 
   const handleDelete = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this category?")) return;

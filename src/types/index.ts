@@ -28,6 +28,7 @@ export interface Product {
   description?: string;
   category: Category | string; // API returns object on GET, might accept string on POST
   images: ProductImage[];
+  thumbnail?: ProductImage;
   variants: ProductVariant[];
   isActive: boolean;
   createdAt: string;

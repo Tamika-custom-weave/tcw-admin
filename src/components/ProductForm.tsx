@@ -100,7 +100,7 @@ function VariantRow({
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Always-visible fields */}
         <div>
-          <label className={labelCls}>Price (₦)</label>
+          <label className={labelCls}>Price ($)</label>
           <input
             type="number"
             min="0"
@@ -209,10 +209,10 @@ export function ProductForm({ initialData, isEdit, onSuccess }: ProductFormProps
   );
   const [isActive, setIsActive] = useState(initialData?.isActive ?? true);
   const [thumbnail, setThumbnail] = useState<ProductImage | null>(
-    initialData?.images?.[0] || null
+    initialData?.thumbnail || initialData?.images?.[0] || null
   );
   const [gallery, setGallery] = useState<ProductImage[]>(
-    initialData?.images?.slice(1) || []
+    initialData?.images || []
   );
   const [variants, setVariants] = useState<ProductVariant[]>(
     initialData?.variants?.length
@@ -266,10 +266,6 @@ export function ProductForm({ initialData, isEdit, onSuccess }: ProductFormProps
     setLoading(true);
     setError(null);
 
-    const images: ProductImage[] = [];
-    if (thumbnail) images.push(thumbnail);
-    images.push(...gallery);
-
     // Sanitize variants: strip fields that don't apply to this category type
     const showLength = catType === "bundle" || catType === "closure" || catType === "frontal";
     const showLaceFields = catType === "closure" || catType === "frontal";
@@ -289,7 +285,8 @@ export function ProductForm({ initialData, isEdit, onSuccess }: ProductFormProps
       description,
       category: categoryId,
       isActive,
-      images,
+      thumbnail: thumbnail || undefined,
+      images: gallery,
       variants: sanitizedVariants,
     };
 
