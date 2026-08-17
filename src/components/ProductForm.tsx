@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { fetchApi } from "@/lib/api";
 import { Category, Product, ProductImage, ProductVariant } from "@/types";
@@ -38,12 +38,14 @@ function VariantPreviewCard({ variant, catType }: { variant: ProductVariant; cat
     <div className="flex items-center gap-3 flex-wrap bg-gold-50 border border-gold-100 rounded-lg px-3 py-2 text-sm">
       <span className="font-semibold text-gold-700">${variant.price}</span>
       <span className="text-gray-400">·</span>
-      <span className="text-gray-600">{variant.stock} in stock</span>
+      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${variant.stock === 0 ? "bg-red-50 text-red-700" : variant.stock <= 5 ? "bg-yellow-50 text-yellow-700" : "bg-green-50 text-green-700"}`}>
+        {variant.stock} in stock
+      </span>
       {attrs.map((a) => (
-        <>
+        <React.Fragment key={a.label}>
           <span className="text-gray-400">·</span>
           <span className="text-gray-700"><span className="text-gray-400">{a.label}: </span>{a.value}</span>
-        </>
+        </React.Fragment>
       ))}
       {variant.sku && (
         <>

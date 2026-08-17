@@ -29,8 +29,36 @@ export interface Product {
   category: Category | string; // API returns object on GET, might accept string on POST
   images: ProductImage[];
   thumbnail?: ProductImage;
+
   variants: ProductVariant[];
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface OrderData {
+  _id: string;
+  customerName?: string;
+  customerEmail?: string;
+  totalAmount: number;
+  paymentStatus: string;
+  orderStatus: string;
+  createdAt: string;
+  updatedAt?: string;
+  shippingAddress?: {
+    name?: string;
+    line1: string;
+    line2?: string;
+    city: string;
+    state: string;
+    postal_code: string;
+    country: string;
+  };
+  items: Array<{
+    itemType: string;
+    product?: { name: string };
+    variantSku?: string;
+    quantity: number;
+    totalPrice: number;
+  }>;
 }

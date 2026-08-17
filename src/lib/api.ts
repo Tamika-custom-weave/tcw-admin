@@ -1,3 +1,5 @@
+import { OrderData } from "@/types";
+
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 interface FetchApiOptions extends RequestInit {
@@ -57,4 +59,15 @@ export async function fetchApi<T>(endpoint: string, options: FetchApiOptions = {
   }
   
   return json as T;
+}
+
+export async function getOrders() {
+  return fetchApi<OrderData[]>('/orders', { cache: 'no-store' });
+}
+
+export async function updateOrderStatus(orderId: string, status: string) {
+  return fetchApi<OrderData>(`/orders/${orderId}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
 }

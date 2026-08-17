@@ -143,6 +143,7 @@ export default function ProductsPage() {
                 <th className="py-4 px-6">Product</th>
                 <th className="py-4 px-6">Category</th>
                 <th className="py-4 px-6">Price Range</th>
+                <th className="py-4 px-6">Stock</th>
                 <th className="py-4 px-6">Status</th>
                 <th className="py-4 px-6 text-right">Actions</th>
               </tr>
@@ -164,6 +165,11 @@ export default function ProductsPage() {
                   const priceStr = minPrice === maxPrice ? `$${minPrice}` : `$${minPrice} - $${maxPrice}`;
                   const thumbnailObj = product.thumbnail || product.images?.[0];
                   
+                  const totalStock = product.variants.reduce((sum, v) => sum + (v.stock || 0), 0);
+                  const lowStockThreshold = 5;
+                  const stockStatus = totalStock === 0 ? "Out of Stock" : totalStock <= lowStockThreshold ? "Low Stock" : "In Stock";
+                  const stockBadgeClass = totalStock === 0 ? "bg-red-50 text-red-700 border-red-200" : totalStock <= lowStockThreshold ? "bg-yellow-50 text-yellow-700 border-yellow-200" : "bg-green-50 text-green-700 border-green-200";
+                  
                   return (
                     <tr key={product._id} className="border-b border-gray-50 hover:bg-gold-50/30 transition-colors group">
                       <td className="py-4 px-6">
@@ -181,6 +187,11 @@ export default function ProductsPage() {
                       </td>
                       <td className="py-4 px-6 text-gray-600 text-sm">{category?.name || 'Unknown'}</td>
                       <td className="py-4 px-6 text-gray-900 font-medium text-sm">{priceStr}</td>
+                      <td className="py-4 px-6">
+                        <span className={`px-2.5 py-1 text-xs rounded-full font-medium border ${stockBadgeClass}`}>
+                          {stockStatus} ({totalStock})
+                        </span>
+                      </td>
                       <td className="py-4 px-6">
                         <span className={`px-2.5 py-1 text-xs rounded-full font-medium border ${product.isActive ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-600 border-gray-200'}`}>
                           {product.isActive ? 'Active' : 'Inactive'}

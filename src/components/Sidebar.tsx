@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { LayoutDashboard, Package, Tags, Plus, X, LogOut } from "lucide-react";
+import { LayoutDashboard, Package, Tags, Plus, X, LogOut, ShoppingCart } from "lucide-react";
 import clsx from "clsx";
 import { useAuth } from "@/providers/AuthProvider";
 
@@ -20,6 +20,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   const navItems = [
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
+    { name: "Orders", href: "/orders", icon: ShoppingCart },
     { name: "Products", href: "/products", icon: Package },
     { name: "Categories", href: "/categories", icon: Tags },
   ];
