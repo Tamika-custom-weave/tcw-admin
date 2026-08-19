@@ -77,7 +77,7 @@ export function OrderDetailsModal({ order, onClose, onUpdate }: OrderDetailsModa
         <div className="border-t border-gray-100 pt-4">
           <h3 className="text-sm font-medium text-gray-900 mb-4">Order Items</h3>
           <ul className="divide-y divide-gray-100">
-            {order.items.map((item: OrderData["items"][0] & { productName?: string, sku?: string, customWig?: { wigStyle: string, hairLength: string, headSize: string, bundles?: { quantity: number; product?: { name: string }; variantSku?: string }[], laceSystem?: { product?: { name: string }; variantSku?: string } } }, idx: number) => (
+            {order.items.map((item: OrderData["items"][0] & { productName?: string, sku?: string, customWig?: { wigStyle: string, hairLength: string, headSize: string, styling?: string, bundles?: { quantity: number; product?: { name: string }; variantSku?: string }[], laceSystem?: { product?: { name: string }; variantSku?: string } } }, idx: number) => (
               <li key={idx} className="py-3 flex justify-between">
                   <div>
                     {item.itemType === "PRODUCT" ? (
@@ -96,7 +96,7 @@ export function OrderDetailsModal({ order, onClose, onUpdate }: OrderDetailsModa
                         </p>
                         {item.customWig && (
                           <div className="mt-2 text-xs text-gray-600 space-y-1 bg-gray-50 p-2 rounded-md border border-gray-100">
-                            <p><span className="font-semibold text-gray-700">Style:</span> {item.customWig.wigStyle}, {item.customWig.hairLength}&quot;, {item.customWig.headSize}</p>
+                            <p><span className="font-semibold text-gray-700">Style:</span> {item.customWig.wigStyle}, {item.customWig.hairLength}&quot;, {item.customWig.headSize}{item.customWig.styling ? `, ${item.customWig.styling}` : ''}</p>
                             
                             <p className="font-semibold text-gray-700 mt-2">Bundles:</p>
                             <ul className="list-disc pl-4 mb-1">
