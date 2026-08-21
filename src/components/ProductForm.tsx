@@ -6,6 +6,7 @@ import { fetchApi } from "@/lib/api";
 import { Category, Product, ProductImage, ProductVariant } from "@/types";
 import { ImageUpload } from "./ImageUpload";
 import { Plus, Trash2, Tag, Layers, ChevronDown, ChevronUp, Eye } from "lucide-react";
+import { z } from "zod";
 
 interface ProductFormProps {
   initialData?: Product;
@@ -197,6 +198,20 @@ function VariantRow({
   );
 }
 
+const productSchema = z.object({
+  name: z.string().min(1, "Product name is required"),
+  category: z.string().min(1, "Category is required"),
+  variants: z.array(z.object({
+    price: z.number().min(0, "Price must be a positive number"),
+    stock: z.number().min(0, "Stock must be a positive number"),
+    sku: z.string().min(1, "SKU is required"),
+    color: z.string().optional(),
+    length: z.string().optional(),
+    size: z.string().optional(),
+    laceType: z.string().optional(),
+  })).min(1, "At least one variant is required")
+});
+
 // ---- Main Form ----
 export function ProductForm({ initialData, isEdit, onSuccess }: ProductFormProps) {
   const router = useRouter();
@@ -261,9 +276,10 @@ export function ProductForm({ initialData, isEdit, onSuccess }: ProductFormProps
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!categoryId) return setError("Please select a category.");
-    if (!thumbnail) return setError("Please upload a thumbnail image.");
-    if (variants.length === 0) return setError("At least one variant is required.");
+    if (!thumbnail) {
+      setError("Please upload a thumbnail image.");
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -291,6 +307,13 @@ export function ProductForm({ initialData, isEdit, onSuccess }: ProductFormProps
       images: gallery,
       variants: sanitizedVariants,
     };
+
+    const result = productSchema.safeParse(payload);
+    if (!result.success) {
+      setError(result.error.issues[0].message);
+      setLoading(false);
+      return;
+    }
 
     try {
       if (isEdit && initialData) {
