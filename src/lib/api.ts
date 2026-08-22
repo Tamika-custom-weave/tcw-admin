@@ -1,6 +1,6 @@
 import { OrderData } from "@/types";
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 interface FetchApiOptions extends RequestInit {
   /** If true, a 401 response will NOT trigger a global redirect to /login.
