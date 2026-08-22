@@ -5,8 +5,12 @@ export async function middleware(request: NextRequest) {
   const isLoginPage = request.nextUrl.pathname === '/login';
 
   // Forward the cookie to the backend to check validity
-  const apiUrl = process.env.API_URL || 'http://localhost:5000/api';
+  const isProd = process.env.NODE_ENV === 'production';
+  const apiUrl = process.env.API_URL || (isProd ? '' : 'http://localhost:5000/api');
   
+  if (isProd && !apiUrl) {
+    throw new Error('API_URL environment variable is required in production.');
+  }
   try {
     const res = await fetch(`${apiUrl}/auth/me`, {
       headers: {

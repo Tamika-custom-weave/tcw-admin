@@ -1,11 +1,18 @@
 import type { NextConfig } from "next";
 
+const isProd = process.env.NODE_ENV === 'production';
+const apiUrl = process.env.API_URL || (isProd ? '' : 'http://localhost:5000/api');
+
+if (isProd && !apiUrl) {
+  throw new Error('API_URL environment variable is required in production.');
+}
+
 const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
         source: '/api/:path*',
-        destination: `${process.env.API_URL || 'http://localhost:5000/api'}/:path*`,
+        destination: `${apiUrl}/:path*`,
       },
     ];
   },
